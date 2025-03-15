@@ -9,6 +9,16 @@ all_df = pd.read_csv("df_all.csv")
 # Convert 'date_time' column to datetime format
 all_df['date_time'] = pd.to_datetime(all_df['date_time'])
 
+# Sidebar for date-time filtering
+st.sidebar.header('Filter by Date-Time')
+start_date = st.sidebar.date_input('Start date', all_df['date_time'].min().date())
+end_date = st.sidebar.date_input('End date', all_df['date_time'].max().date())
+
+# Button to apply the filter
+if st.sidebar.button('Apply Filter'):
+    filtered_df = all_df[(all_df['date_time'] >= pd.to_datetime(start_date)) & (all_df['date_time'] <= pd.to_datetime(end_date))]
+else:
+    filtered_df = all_df
 
 st.header('Air Quality Analysis')
 st.write('By Muhammad Dhiki Trilaksono F')
@@ -17,9 +27,9 @@ tab1, tab2, tab3 = st.tabs(["Pertanyaan 1", "Pertanyaan 2", "Pertanyaan 3"])
 
 with tab1:
     st.subheader("Bagaimana konsentrasi NO2 dan CO sebagai polutan dari kendaraan bermotor mempengaruhi kualitas udara?")
-    all_df['date_time_month'] = all_df['date_time'].dt.to_period('M')
+    filtered_df['date_time_month'] = filtered_df['date_time'].dt.to_period('M')
 
-    monthly_avg = all_df.groupby('date_time_month').agg({
+    monthly_avg = filtered_df.groupby('date_time_month').agg({
         'CO': 'mean',
         'NO2': 'mean',
         'PM2.5': 'mean',
@@ -55,9 +65,9 @@ with tab1:
 
 with tab2:
     st.subheader("Bagaimana hubungan antara polutan NO2 dan CO dengan pembentukan O3?")
-    all_df['date_time_month'] = all_df['date_time'].dt.to_period('M')
+    filtered_df['date_time_month'] = filtered_df['date_time'].dt.to_period('M')
 
-    monthly_avg = all_df.groupby('date_time_month').agg({'NO2': 'mean', 'CO': 'mean', 'O3': 'mean'}).reset_index()
+    monthly_avg = filtered_df.groupby('date_time_month').agg({'NO2': 'mean', 'CO': 'mean', 'O3': 'mean'}).reset_index()
 
     monthly_avg['date_time_month'] = monthly_avg['date_time_month'].dt.to_timestamp()
 
@@ -81,9 +91,9 @@ with tab2:
 
 with tab3:
     st.subheader("Bagaimana hubungan antara polutan NO2 dan CO dengan PM2.5 dan PM10?")
-    all_df['date_time_month'] = all_df['date_time'].dt.to_period('M')
+    filtered_df['date_time_month'] = filtered_df['date_time'].dt.to_period('M')
 
-    monthly_avg = all_df.groupby('date_time_month').agg({
+    monthly_avg = filtered_df.groupby('date_time_month').agg({
         'NO2': 'mean',
         'CO': 'mean',
         'PM2.5': 'mean',
